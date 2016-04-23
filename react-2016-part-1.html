@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React 2016 (Part 1): React</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/index.css">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# React 2016 (Part 1): Introduction to React
+
+---
+
+class: middle
+
+.left-column[
+  ## Freddy Rangel
+]
+
+.right-column[
+* Contributor to React
+
+* Author of "React Under the Hood: A Beginner's Guide" and the upcoming book "React: The Good Parts"
+
+* Twitter: @frangel85
+]
+
+---
+
+class: middle
+
+.left-column[
+  ## Craig Condon
+]
+
+.right-column[
+* Sr. Front-End Engineer at HelloSign
+
+* Creator of Mesh, Mojo, Paperclip, and Saffron
+]
+
+---
+
+class: center, middle
+
+## What are the Goals of This Workshop?
+
+---
+
+class: center, middle
+
+### What are the Goals of This Workshop?
+
+.center-content[
+* Avoid JavaScript Tooling Fatugue
+
+* Learn the APIs of the most popular libraries in the React Ecosystem
+
+* Be able to work in a React project immediately
+]
+
+---
+
+class: center, middle
+
+## Agenda
+
+.center-content[
+* What is React?
+
+* How is React Different?
+
+* Components Not Templates
+
+* The Virtual DOM
+
+* Data in React
+
+* The Diff Algorithm
+
+* Event Delegation
+
+* 3 Flavors of React Components
+
+* What you need to know about JSX
+]
+
+---
+
+class: center, middle
+
+## What is React?
+
+---
+
+class: center, middle
+
+### What is React?
+
+.center-content[
+* React is an open-source JS library for creating user interfaces that aims to
+address the problems of building large applications with data that changes over
+time.
+
+* Originally developed at Facebook, it is now used at Instagram, Netflix, Airbnb,
+and HelloSign.
+
+* It only cares about creating components that encapsulate behavior and state
+
+* It’s simple, declarative, composable, and fast
+
+]
+
+---
+
+class: center, middle
+
+## How is React different?
+
+---
+
+class: center, middle
+
+### How is React different?
+
+.center-content[
+* Forces you to think in terms of small components
+
+* Clear seperation between state and static properties
+
+* Extremely simple yet powerful API
+
+* Easy to debug
+
+* Fast and low memory footprint
+
+* Works well with third-party libraries
+
+* Works well with existing codebases
+
+* To put it simply: it's like a declarative jQuery
+]
+
+---
+
+class: center, middle
+
+## Lesson 1: Write Components, Not Templates
+
+---
+
+class: center, middle
+
+### "State is the root of all evil."
+
+-Abraham Lincoln
+
+---
+
+class: center, middle
+
+### Lesson 1: Write Components, Not Templates
+
+.center-content[
+* MVC in the browser obscures the state of your application
+
+* Client-side applications aren't a collection of models, views, and
+controllers. They're a collection of UI components
+
+* Markup and display logic are both concerned with rendering the UI. Therefore,
+they belong together.
+]
+
+---
+
+class: center, middle
+
+### A Simple React Component
+
+```javascript
+import React    from 'react';
+import ReactDOM from 'react-dom';
+
+class HelloWorld extends React.Component {
+  render() {
+    return <h1 className="header">Hello, World!</h1>
+  }
+}
+
+ReactDOM.render(<HelloWorld />, document.getElementById('app'));
+```
+
+---
+
+class: center, middle
+
+### Do Not Fear JSX: It's Just JavaScript Under the Hood
+
+```javascript
+<h1 className="header">Hello, World!</h1>
+
+// same as:
+
+React.createElement('h1', {className: 'header'}, 'Hello, World!');
+```
+---
+
+class: center, middle
+
+### React components are highly reusable
+
+```javascript
+
+import React      from 'react';
+import ReactDOM   from 'react-dom';
+import HelloWorld from './hello-world';
+
+class Header extends React.Component {
+  render() {
+    return <div>
+      <HelloWorld />
+      <h2>React All The Things!</h2>
+    </div>
+  }
+}
+
+ReactDOM.render(<HelloWorld />, document.getElementById('app'));
+```
+
+---
+
+class: center, middle
+
+## Lesson 2: The Virtual DOM
+
+---
+
+class: center, middle
+
+### Lesson 2: The Virtual DOM
+
+.center-content[
+* Not to be confused with the Shadow DOM
+
+* A virtual representation of the currrent state of the DOM
+
+* Reconciliation: When your data changes, React will perform a diff between the
+new virtual DOM and the old virtual DOM, and figure out the fastest way to
+update the real DOM
+
+* Batches all changes via `requestAnimationFrame()` so updates are performed in
+one browser paint
+]
+
+---
+
+class: center, middle
+
+## Data in React
+
+---
+
+class: center, middle
+
+### Data in React
+
+.center-content[
+* React separates data that changes over time (state) from immutable data that stays the same
+
+* React calls these concepts “state” and “props”
+
+* Components manage their own state
+
+* Data can only flow from parent container to child container as props
+]
+
+---
+
+class: center, middle
+
+## Live Example
+
+.center-content[
+]
+
+---
+
+class: center, middle
+
+## Diff Algorithm
+
+---
+
+class: center, middle
+
+### Diff Algorithm
+
+.center-content[
+* React doesn't exactly re-render the whole app on every state change: it only changes the parts that need to change
+
+* DOM is just a tree of nodes
+
+* Comparing two trees is one of the most studied and understood problems in computer science
+
+* Even with the most efficient algorithms, Finding the minimum number of mutations between two trees is a O(n^3) problem, where `n` is the number of nodes
+
+* The fastest algorithms are not good enough: If two trees have 1,000 nodes each, figuring out the minimum operations to transform one to the other would require ONE BILLION operations
+]
+
+---
+class: center, middle
+
+## How Does React Make it Fast?
+
+---
+class: center, middle
+
+### How Does React Make it Fast?
+
+.center-content[
+React uses a set of heuristics to make its diff algorithm much more efficient:
+
+1. Components of the same class will generate similar trees
+
+2. Components of a different class will generate different trees
+
+3. You can add unique keys to elements that are stable across different renders
+]
+
+---
+
+class: center, middle
+
+## Event Delegation
+
+---
+class: center, middle
+
+### Event Delegation
+
+.center-content[
+* Adding event listeners is notoriously slow.
+
+* Since React triggers a re-render of a component and it's children on every state change, this can be a problem.
+
+* React handles this by implementing a technique called "event delegation" which it calls “synthetic events”
+]
+
+---
+class: center, middle
+
+### Synthetic Events
+
+.center-content[
+* Instead of adding event listeners directly to a DOM node, React attaches only one event listener on the root of the document.
+
+* React keeps a hash map off all the event listeners
+
+* When an event is fired, the unhandled event bubbles up the DOM until it reaches React's single event listener.
+
+* Once the event reaches React's synthetic event system, it looks up the DOM node the event is being called on in the hash map of events
+]
+
+---
+class: center, middle
+
+### Synthetic Events
+
+.center-content[
+* React's event system is W3C compliant, meaning that it will work on IE8
+
+* It also means you have the same interface as the browser's native events, like “stopProgation()” and “preventDefault()”. You should keep this in mind if you're submitting a form:
+]
+
+---
+class: center, middle
+
+```javascript
+class NewCatForm extends React.Component {
+  handleSubmit(e) {
+    e.preventDefault();
+    const catName = this.refs.catName.value.trim()
+    ...
+  }
+  render() {
+    return <form onSubmit={this.handleSubmit}>
+      <input type="text" ref="catName">
+      <input type="submit">
+    </form>
+  }
+}
+```
+---
+class: center, middle
+
+## Three Flavors of React Components
+
+
+---
+class: center, middle
+
+### Three Flavors of React Components
+
+.center-content[
+* ES2015 Classes
+
+* ES5 `React.createClass()`
+
+* Stateless Functional Components
+]
+
+---
+class: center, middle
+
+```javascript
+import React from 'react';
+
+class HelloWorld extends React.Component {
+  render() {
+    return <h1 className="header">Hello, World!</h1>
+  }
+}
+```
+
+---
+class: center, middle
+
+```javascript
+import React from 'react';
+
+var HelloWorld = React.createClass({
+  render: function() {
+    return <h1 className="header">Hello, World!</h1>
+  }
+});
+```
+
+---
+class: center, middle
+
+```javascript
+import React from 'react';
+
+const HelloWorld = (props) => {
+  return <h1 className="header">Hello, World!</h1>
+}
+```
+
+---
+class: center, middle
+
+## JSX Gotchas
+
+---
+class: center, middle
+
+### JSX Gotchas
+
+.center-content[
+* It looks like HTML but it's JavaScript
+
+* `className` rather than `class`
+
+* Inline styles are objects not strings
+
+* Because the diff algorithm depends on comparing trees, JSX must have just one parent node.
+
+* HTML Entities won't work: you need to use unicode. `\u00b7` > "middot"
+]
+
+    </textarea>
+    <script src="/remark-latest.min.js"></script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>

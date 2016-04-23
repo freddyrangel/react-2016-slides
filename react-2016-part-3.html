@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React 2016 (Part 3): React</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/index.css">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# React 2016 (Part 3): Introduction to Redux
+
+---
+class: center, middle
+
+## Agenda
+
+.center-content[
+* What is Redux?
+
+* The Gist
+
+* Redux Principles
+
+* Actions and Reducers and Stores, Oh My!
+
+* Async middleware
+]
+
+---
+
+class: center, middle
+
+## What is Redux?
+
+---
+
+class: center, middle
+
+### What is Redux?
+
+.center-content[
+* Redux is a predictable state container for JS apps.
+
+* Designed with React in mind, but can be used with any rendering library
+
+* Excellent developer experience
+
+* Like React, it works on the client, server, and native environments
+
+* Ability to rewind your state aka time travelling
+
+* Extremely small (around 300 lines of code)
+]
+
+---
+
+class: center, middle
+
+### The Gist
+
+
+```javascript
+import {createStore} from 'redux'
+
+const counterReducer = (state = 0, action) => {
+  switch (action.type) {
+  case 'INCREMENT':
+    return state + 1
+  case 'DECREMENT':
+    return state - 1
+  default:
+    return state
+  }
+};
+
+let store = createStore(counterReducer);
+
+store.subscribe(() =>
+  console.log(store.getState())
+);
+
+store.dispatch({ type: 'INCREMENT' }) // 1
+store.dispatch({ type: 'INCREMENT' }) // 2
+store.dispatch({ type: 'DECREMENT' }) // 1
+store.getState() // 1
+```
+---
+
+class: center, middle
+
+## Three Redux Principles
+
+---
+
+class: center, middle
+
+### Principle 1: A Single Source of Truth
+
+.center-content[
+* The state of your application is stored in an object tree within a single store.
+
+* This makes it easy to serialize and send it over the wire.
+
+* Fewer moving parts means easier to debug.
+]
+
+---
+class: center, middle
+
+### `getState()`: the entire state of your application
+
+```javascript
+console.log(store.getState());
+
+/* Prints
+{
+  info: {
+    "Ship Name": "USS Enterprise"
+  },
+  speed: 9,
+  position: [0, 0]
+}
+*/
+```
+---
+class: center, middle
+
+### Principle 2: State is read-only
+
+.center-content[
+* The only way to mutate state is to emit an action.
+
+* Actions are an object that describe what happened.
+
+* This ensures no other actors can write directly to state
+]
+---
+class: center, middle
+
+### Use `dispatch()` to emit an action describing what happened.
+
+```javascript
+store.dispatch({
+  type: 'UPDATE_DESTINATION',
+  payload: {
+    newDestination: 'Sol'
+  }
+});
+
+store.dispatch({
+  type: 'ENGAGE_WARP_DRIVE'
+});
+```
+---
+class: center, middle
+
+### Principle 3: Changes are made with pure functions
+
+.center-content[
+* To specify how the state is transformed by actions, use reducers
+
+* Reducers is a pure function with no side effects
+
+* Reducers take the current state and an action, then return the next state
+
+* You can start with a single reducer but then you want to break them apart to
+deal with specific parts of the state tree
+]
+---
+class: center, middle
+
+### Use a case statement to respond to different actions
+
+```javascript
+function shipReducer(state = initialShipData, action) {
+
+  const payload = action.payload;
+
+  switch (action.type) {
+    case 'UPDATE_DESTINATION':
+      return updateDestination(state, payload.newDestination);
+    case 'UPDATE_SPEED':
+      return updateSpeed(state, payload.newSpeed);
+    case 'UPDATE_POSITION':
+      return updatePosition(state, payload.newPosition)
+    default:
+      return state;
+  }
+}
+
+...
+
+const store = createStore(shipReducer);
+```
+---
+class: center, middle
+
+### Reducers reduce
+
+.center-content[
+* Given a collection of past actions, you can reduce that collection into the current state.
+
+* That is why these functions are called reducers: It's basically a reduce callback
+]
+
+```javascript
+const actions = [
+  {type: 'SET_INITIAL_STATE', payload: {info: {'Ship Name': 'USS Enterprise'}}},
+  {type: 'UPDATE_SPEED', payload: {newSpeed: 9}},
+  {type: 'UPDATE_DESTINATION', payload: {newDestination: 'Deep Space Nine'}},
+  {type: 'UPDATE_SHIP_NAME', payload: {'Ship Name': 'USS Defiant'}}
+];
+
+const finalState = actions.reduce(reducer, Map())
+```
+---
+
+class: center, middle
+
+### A Word About Actions
+
+.center-content[
+* There is a standard for actions called the "Flux Standard Action" or FSA
+
+* This makes it easier to work with actions if you can always make certain assumptions
+]
+
+---
+class: center, middle
+
+
+### A basic FSA
+
+```javascript
+{
+  type: 'SET_WARP_FACTOR',
+  payload: {
+    speed: 9.5
+  }
+}
+```
+---
+class: center, middle
+
+
+### An error FSA
+
+```javascript
+{
+  type: 'GET_POSTS',
+  payload: new Error(),
+  error: true
+}
+```
+---
+class: center, middle
+
+
+### FSA Rules
+.center-content[
+An action MUST
+
+* be a plain JavaScript object.
+* have a `type` property.
+
+An action MAY
+
+* have a `error` property.
+* have a `payload` property.
+* have a `meta` property.
+]
+
+---
+class: center, middle
+
+## Cool story ... how does this work with React?
+
+
+    </textarea>
+    <script src="/remark-latest.min.js"></script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>

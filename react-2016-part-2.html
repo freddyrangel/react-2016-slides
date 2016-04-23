@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>React 2016 (Part 2): Immutable.js</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/index.css">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# React 2016 (Part 2): Immutable.js
+
+---
+class: center, middle
+
+## Agenda
+
+.center-content[
+* The Case for Immutability
+
+* Map()
+
+* List()
+
+* fromJS()
+
+* toJS()
+]
+
+---
+class: center, middle
+
+## What is Immutable.js
+
+---
+class: center, middle
+
+### What is Immutable.js
+
+.center-content[
+* Brings immutable data structures to JavaScript, meaning once you create data you cannot mutate it.
+
+* This means no defensive copying
+
+* When you change immutable data, you get a completely new copy of data
+
+* Based on the highly efficient hash map tries and vector tries in Clojure, Scala, and Haskell
+
+* An API very similar to ES2015 `Map`, `Array`, and `Set`
+
+* Transpiled all the way down to ES3 so it runs on all browsers, even IE8.
+]
+---
+class: center, middle
+
+## The Case for Immutability
+---
+class: center, middle
+
+### The Case for Immutability
+
+.center-content[
+* Much of what makes app development hard is tracking mutations in state
+
+* With immutability, you never have to worry about whether your data has changed.
+
+* Data should be treated as values. `1 + 2` doesn't mutate either of these numbers. They result in a new number
+
+* Instead of trying to track changes, you can check for equality. Immutability
+make this cheap because all you need to do is compare the object references
+rather than a complete comparison of the data structure
+]
+---
+class: center, middle
+
+### Map()
+
+```javascript
+import {Map} from 'immutable';
+
+const map1 = Map({shipName: 'Enterprise', warpFactor: 9});
+
+const map2 = map1.set('warpFactor', 0);
+
+const shipName = map1.get('shipname');
+
+map2.equals(map1) //false
+
+const map3 = map2.map((v, k) => k.toUpperCase());
+```
+---
+class: center, middle
+
+### List()
+
+```javascript
+import {List} from 'immutable';
+
+const list1 = Immutable.List.of(1, 2);
+
+const list2 = list1.push(3, 4, 5);
+
+const indexOne = list2.get('0');
+```
+---
+class: center, middle
+
+### fromJS() and toJS()
+
+```javascript
+import {fromJS} from 'immutable';
+
+const data1 = {
+  info: {
+    "Ship Name": 'Enterprise',
+    "Captain": "Picard"
+  },
+  speed: 9,
+  destination: {
+    name: 'Wolf 359',
+    coordinates: [300, 500]
+  }
+}
+
+const map1 = fromJS(data);
+
+const data2 = map1.toJS();
+```
+
+
+    </textarea>
+   ---
+    <script src="/remark-latest.min.js"></script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
